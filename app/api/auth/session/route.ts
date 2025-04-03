@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TwitterSession } from '../../../types';
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     // Get the session cookie
