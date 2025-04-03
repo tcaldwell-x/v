@@ -2,7 +2,7 @@
 
 import { useTwitterAuth } from "./providers"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import AuthError from "./components/AuthError"
 
 export default function Home() {
@@ -20,7 +20,9 @@ export default function Home() {
       <h1 className="text-4xl font-bold mb-4">OAuth2.0 Demo</h1>
       <p className="text-x-text-muted mb-12">Authenticate with your X account using OAuth 2.0</p>
 
-      <AuthError />
+      <Suspense fallback={<div>Loading...</div>}>
+        <AuthError />
+      </Suspense>
 
       <div className="w-full max-w-md">
         <div className="card p-8 text-center">
