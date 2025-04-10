@@ -1,6 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { TwitterAuthProvider } from './providers'
+import ClientProvider from './client-provider'
 
 export const metadata: Metadata = {
   title: 'X OAuth Demo',
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark-theme">
       <body>
-        <TwitterAuthProvider>
+        <ClientProvider>
           <nav className="navbar">
             <div className="container mx-auto p-4">
               <a href="/" className="navbar-brand">
@@ -35,7 +35,7 @@ export default function RootLayout({
               X Developers
             </div>
           </footer>
-        </TwitterAuthProvider>
+        </ClientProvider>
       </body>
     </html>
   )
