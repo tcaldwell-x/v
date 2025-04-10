@@ -41,8 +41,20 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
     // Check for session data in cookies on client side
     const checkSession = async () => {
       try {
+        console.log("Checking session...");
+        
         // Make a request to the API to get the session
-        const response = await fetch('/api/auth/session');
+        const response = await fetch('/api/auth/session', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        
+        console.log("Session API response status:", response.status);
+        console.log("Session API response headers:", Object.fromEntries(response.headers.entries()));
         
         // Check if the response is OK
         if (!response.ok) {
@@ -56,6 +68,11 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           console.warn("Session API returned non-JSON response:", contentType);
+          
+          // Try to get the response text for debugging
+          const text = await response.text();
+          console.warn("Response text:", text.substring(0, 200) + "...");
+          
           setSession(null);
           setStatus("unauthenticated");
           return;
@@ -65,6 +82,7 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
         let data;
         try {
           data = await response.json();
+          console.log("Session data:", data);
         } catch (parseError) {
           console.error("Error parsing session JSON:", parseError);
           setSession(null);
@@ -97,7 +115,12 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       const response = await fetch('/api/auth/twitter?action=signout', {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
       });
       
       if (response.ok) {
