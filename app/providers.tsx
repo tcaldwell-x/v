@@ -51,6 +51,7 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
+          cache: 'no-store',
         });
         
         console.log("Session API response status:", response.status);
