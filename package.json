@@ -2,6 +2,9 @@
   "name": "x-oauth-demo",
   "version": "1.0.0",
   "description": "Next.js application demonstrating OAuth 2.0 authentication with X",
+  "engines": {
+    "node": ">=18.17.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
