@@ -16,6 +16,14 @@ export async function GET(request: NextRequest) {
   
   // Handle sign in
   if (action === 'signin') {
+    // Check if environment variables are set
+    if (!process.env.X_CLIENT_ID || !process.env.NEXTAUTH_URL) {
+      console.error('Missing required environment variables: X_CLIENT_ID or NEXTAUTH_URL');
+      return NextResponse.json({ 
+        error: 'Authentication configuration error. Please check server logs.' 
+      }, { status: 500 });
+    }
+    
     // Generate a random state value for CSRF protection
     const generatedState = Math.random().toString(36).substring(2, 15);
     

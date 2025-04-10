@@ -12,23 +12,50 @@ This Next.js application demonstrates how to implement OAuth 2.0 authentication 
 - CSRF protection with state parameter
 - Error handling
 
-## Setup
+## Environment Variables
+
+This application requires the following environment variables to be set:
+
+- `X_CLIENT_ID`: Your Twitter API client ID
+- `X_CLIENT_SECRET`: Your Twitter API client secret
+- `NEXTAUTH_URL`: The URL of your deployed application (e.g., https://your-app.vercel.app)
+- `NEXTAUTH_SECRET`: A random string used to encrypt cookies (you can generate one with `openssl rand -base64 32`)
+
+## Setting up Environment Variables in Vercel
+
+1. Go to your Vercel project dashboard
+2. Click on "Settings" in the top navigation
+3. Select "Environment Variables" from the left sidebar
+4. Add each of the required environment variables:
+   - Name: `X_CLIENT_ID`, Value: Your Twitter API client ID
+   - Name: `X_CLIENT_SECRET`, Value: Your Twitter API client secret
+   - Name: `NEXTAUTH_URL`, Value: Your Vercel deployment URL (e.g., https://your-app.vercel.app)
+   - Name: `NEXTAUTH_SECRET`, Value: A random string for cookie encryption
+5. Click "Save" to apply the changes
+6. Redeploy your application
+
+## Getting Twitter API Credentials
+
+1. Go to the [Twitter Developer Portal](https://developer.twitter.com/en/portal/dashboard)
+2. Create a new project or select an existing one
+3. Create a new app or select an existing one
+4. Go to the "Keys and Tokens" tab
+5. Generate a client ID and client secret
+6. Add your callback URL: `https://your-app.vercel.app/api/auth/callback`
+
+## Local Development
 
 1. Clone the repository
 2. Install dependencies:
    ```bash
    npm install
    ```
-3. Create a `.env.local` file with your X API credentials:
-   ```
-   X_CLIENT_ID=your_client_id
-   X_CLIENT_SECRET=your_client_secret
-   NEXTAUTH_URL=http://localhost:3000
-   ```
+3. Create a `.env.local` file with the required environment variables
 4. Run the development server:
    ```bash
    npm run dev
    ```
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Project Structure
 
@@ -89,6 +116,15 @@ This implementation follows the OAuth 2.0 Authorization Code Flow:
    GET https://api.twitter.com/2/users/me
    Authorization: Bearer {access_token}
    ```
+
+## Troubleshooting
+
+If you encounter issues with authentication:
+
+1. Check that all environment variables are correctly set in Vercel
+2. Verify that your callback URL is correctly configured in the Twitter Developer Portal
+3. Check the Vercel deployment logs for any errors
+4. Make sure your Twitter API credentials have the necessary permissions
 
 ## License
 

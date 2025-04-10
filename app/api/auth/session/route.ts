@@ -13,7 +13,16 @@ export async function GET(request: NextRequest) {
     }
     
     // Parse the session data
-    const session = JSON.parse(sessionCookie) as TwitterSession;
+    let session: TwitterSession;
+    try {
+      session = JSON.parse(sessionCookie) as TwitterSession;
+    } catch (parseError) {
+      console.error('Error parsing session cookie:', parseError);
+      // Delete the corrupted session cookie
+      const response = NextResponse.json({ session: null }, { status: 200 });
+      response.cookies.delete('twitter_session');
+      return response;
+    }
     
     // Check if the session has expired
     if (session.expiresAt && session.expiresAt < Date.now()) {

@@ -27,6 +27,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/?error=invalid_state', request.url));
   }
   
+  // Check if environment variables are set
+  if (!process.env.X_CLIENT_ID || !process.env.X_CLIENT_SECRET || !process.env.NEXTAUTH_URL) {
+    console.error('Missing required environment variables: X_CLIENT_ID, X_CLIENT_SECRET, or NEXTAUTH_URL');
+    return NextResponse.json({ 
+      error: 'Authentication configuration error. Please check server logs.' 
+    }, { status: 500 });
+  }
+  
   try {
     // Exchange the authorization code for access tokens
     const tokenResponse = await fetch(TWITTER_TOKEN_URL, {
