@@ -32,7 +32,12 @@ export async function GET(request: NextRequest) {
     console.error('Missing required environment variables: X_CLIENT_ID, X_CLIENT_SECRET, or NEXTAUTH_URL');
     return NextResponse.json({ 
       error: 'Authentication configuration error. Please check server logs.' 
-    }, { status: 500 });
+    }, { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   }
   
   try {

@@ -21,7 +21,12 @@ export async function GET(request: NextRequest) {
       console.error('Missing required environment variables: X_CLIENT_ID or NEXTAUTH_URL');
       return NextResponse.json({ 
         error: 'Authentication configuration error. Please check server logs.' 
-      }, { status: 500 });
+      }, { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
     }
     
     // Generate a random state value for CSRF protection
@@ -59,5 +64,10 @@ export async function POST(request: NextRequest) {
     return response;
   }
   
-  return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  return NextResponse.json({ error: 'Invalid action' }, { 
+    status: 400,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 } 

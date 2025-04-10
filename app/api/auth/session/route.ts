@@ -9,7 +9,12 @@ export async function GET(request: NextRequest) {
     const sessionCookie = request.cookies.get('twitter_session')?.value;
     
     if (!sessionCookie) {
-      return NextResponse.json({ session: null }, { status: 200 });
+      return NextResponse.json({ session: null }, { 
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
     }
     
     // Parse the session data
@@ -19,7 +24,12 @@ export async function GET(request: NextRequest) {
     } catch (parseError) {
       console.error('Error parsing session cookie:', parseError);
       // Delete the corrupted session cookie
-      const response = NextResponse.json({ session: null }, { status: 200 });
+      const response = NextResponse.json({ session: null }, { 
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       response.cookies.delete('twitter_session');
       return response;
     }
@@ -30,7 +40,12 @@ export async function GET(request: NextRequest) {
       // For now, just return null session
       
       // Delete the expired session cookie
-      const response = NextResponse.json({ session: null }, { status: 200 });
+      const response = NextResponse.json({ session: null }, { 
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       response.cookies.delete('twitter_session');
       return response;
     }
@@ -41,7 +56,12 @@ export async function GET(request: NextRequest) {
         user: session.user,
         expiresAt: session.expiresAt
       }
-    }, { status: 200 });
+    }, { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   } catch (error) {
     console.error('Error getting session:', error);
     
@@ -49,7 +69,12 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ 
       session: null, 
       error: 'Failed to get session' 
-    }, { status: 200 });
+    }, { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     
     response.cookies.delete('twitter_session');
     return response;

@@ -43,15 +43,39 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
       try {
         // Make a request to the API to get the session
         const response = await fetch('/api/auth/session');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.session) {
-            setSession(data.session);
-            setStatus("authenticated");
-          } else {
-            setSession(null);
-            setStatus("unauthenticated");
-          }
+        
+        // Check if the response is OK
+        if (!response.ok) {
+          console.warn(`Session API returned status ${response.status}`);
+          setSession(null);
+          setStatus("unauthenticated");
+          return;
+        }
+        
+        // Check content type to ensure we're getting JSON
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          console.warn("Session API returned non-JSON response:", contentType);
+          setSession(null);
+          setStatus("unauthenticated");
+          return;
+        }
+        
+        // Try to parse the JSON response
+        let data;
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error("Error parsing session JSON:", parseError);
+          setSession(null);
+          setStatus("unauthenticated");
+          return;
+        }
+        
+        // Process the session data
+        if (data.session) {
+          setSession(data.session);
+          setStatus("authenticated");
         } else {
           setSession(null);
           setStatus("unauthenticated");
