@@ -1,5 +1,6 @@
 # X OAuth2.0 Demo with Vanilla JavaScript/TypeScript
 
+
 This Next.js application demonstrates how to implement OAuth 2.0 authentication with X (formerly Twitter) using vanilla JavaScript/TypeScript without relying on third-party authentication libraries.
 
 ## Features
