@@ -6,10 +6,21 @@ const nextConfig = {
   },
   // Ensure proper handling of trailing slashes
   trailingSlash: false,
-  // Enable static optimization where possible
-  swcMinify: true,
+  // Disable some optimizations that might cause issues
+  swcMinify: false,
   // Ensure proper handling of basePath if you're using a custom domain
   basePath: '',
+  // Add output configuration
+  output: 'standalone',
+  // Disable compression
+  compress: false,
+  // Ensure proper asset handling
+  assetPrefix: '',
+  // Add webpack configuration
+  webpack: (config, { isServer }) => {
+    // Add any necessary webpack configurations here
+    return config
+  }
 }
 
 module.exports = nextConfig 
