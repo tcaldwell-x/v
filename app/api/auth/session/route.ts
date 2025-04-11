@@ -9,6 +9,8 @@ export const revalidate = 0;
 export async function GET(request: NextRequest) {
   try {
     console.log("Session API called");
+    console.log("Request headers:", Object.fromEntries(request.headers));
+    
     const cookieStore = cookies();
     const sessionCookie = cookieStore.get('session');
     
@@ -35,11 +37,15 @@ export async function GET(request: NextRequest) {
 
     try {
       const sessionData = JSON.parse(sessionCookie.value);
-      console.log("Session data parsed successfully");
+      console.log("Session data parsed successfully:", {
+        userId: sessionData.user?.id,
+        username: sessionData.user?.username,
+        expiresAt: sessionData.expiresAt ? new Date(sessionData.expiresAt).toISOString() : null
+      });
       
       // Check if session is expired
       if (sessionData.expiresAt && sessionData.expiresAt < Date.now()) {
-        console.log("Session expired, deleting cookie");
+        console.log("Session expired at:", new Date(sessionData.expiresAt).toISOString());
         // Delete the expired session cookie
         const response = new NextResponse(
           JSON.stringify({ session: null }),
@@ -101,10 +107,7 @@ export async function GET(request: NextRequest) {
       { 
         status: 500,
         headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
+          'Content-Type': 'application/json'
         }
       }
     );

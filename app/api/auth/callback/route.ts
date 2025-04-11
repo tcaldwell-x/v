@@ -107,27 +107,38 @@ export async function GET(request: NextRequest) {
       expiresAt: Date.now() + tokenData.expires_in * 1000,
     };
     
+    console.log("Created session data:", {
+      userId: sessionData.user.id,
+      username: sessionData.user.username,
+      expiresAt: new Date(sessionData.expiresAt).toISOString()
+    });
+    
     // Get the hostname from the request URL
     const hostname = new URL(request.url).hostname;
+    console.log("Setting cookie for hostname:", hostname);
     
     // Set the session data in a cookie
     const response = NextResponse.redirect(new URL('/profile', request.url));
     
     // Set the session cookie with proper domain and path
-    response.cookies.set('session', JSON.stringify(sessionData), {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: '/',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       // Don't set domain for localhost, but set it for production
       ...(process.env.NODE_ENV === 'production' ? { domain: hostname } : {})
-    });
+    };
+    
+    console.log("Setting session cookie with options:", cookieOptions);
+    response.cookies.set('session', JSON.stringify(sessionData), cookieOptions);
     
     // Clear the OAuth cookies since we no longer need them
     response.cookies.delete('twitter_oauth_state');
     response.cookies.delete('twitter_code_verifier');
     
+    console.log("Redirecting to profile page");
     return response;
   } catch (error) {
     console.error('Authentication error:', error);
