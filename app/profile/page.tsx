@@ -2,21 +2,29 @@
 
 import { useTwitterAuth } from "../providers"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 
 export default function ProfilePage() {
   const { session, status, signOut } = useTwitterAuth()
   const router = useRouter()
+  const [isClient, setIsClient] = useState(false)
 
+  // Set isClient to true once component mounts
   useEffect(() => {
-    if (status === "unauthenticated") {
+    setIsClient(true)
+  }, [])
+
+  // Redirect unauthenticated users
+  useEffect(() => {
+    if (isClient && status === "unauthenticated") {
+      console.log("User is unauthenticated, redirecting to home")
       router.push("/")
     }
-  }, [status, router])
+  }, [status, router, isClient])
 
   // Show loading state
-  if (status === "loading") {
+  if (status === "loading" || !isClient) {
     return (
       <div className="flex justify-center items-center h-48">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
@@ -24,11 +32,16 @@ export default function ProfilePage() {
     )
   }
 
-  // If no session data, return null
+  // If no session data, show loading
   if (!session?.user) {
-    return null
+    return (
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    )
   }
 
+  console.log("Rendering profile for user:", session.user.username)
   const user = session.user
 
   return (

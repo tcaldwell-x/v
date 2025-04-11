@@ -36,6 +36,7 @@ const AuthContext = createContext<AuthContextType>({
 export function TwitterAuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<TwitterSession | null>(null);
   const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Check for session data in cookies on client side
@@ -62,6 +63,7 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
           console.warn(`Session API returned status ${response.status}`);
           setSession(null);
           setStatus("unauthenticated");
+          setIsInitialized(true);
           return;
         }
         
@@ -76,6 +78,7 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
           
           setSession(null);
           setStatus("unauthenticated");
+          setIsInitialized(true);
           return;
         }
         
@@ -88,6 +91,7 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
           console.error("Error parsing session JSON:", parseError);
           setSession(null);
           setStatus("unauthenticated");
+          setIsInitialized(true);
           return;
         }
         
@@ -101,10 +105,13 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
           setSession(null);
           setStatus("unauthenticated");
         }
+        
+        setIsInitialized(true);
       } catch (error) {
         console.error("Error checking session:", error);
         setSession(null);
         setStatus("unauthenticated");
+        setIsInitialized(true);
       }
     };
 
@@ -147,6 +154,15 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
       console.error("Error signing out:", error);
     }
   };
+
+  // Provide a loading state until the initial session check is complete
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ session, status, signIn, signOut }}>
