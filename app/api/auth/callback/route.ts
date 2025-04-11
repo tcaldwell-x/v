@@ -107,14 +107,21 @@ export async function GET(request: NextRequest) {
       expiresAt: Date.now() + tokenData.expires_in * 1000,
     };
     
+    // Get the hostname from the request URL
+    const hostname = new URL(request.url).hostname;
+    
     // Set the session data in a cookie
     const response = NextResponse.redirect(new URL('/profile', request.url));
+    
+    // Set the session cookie with proper domain and path
     response.cookies.set('session', JSON.stringify(sessionData), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: '/',
-      sameSite: 'lax'
+      sameSite: 'lax',
+      // Don't set domain for localhost, but set it for production
+      ...(process.env.NODE_ENV === 'production' ? { domain: hostname } : {})
     });
     
     // Clear the OAuth cookies since we no longer need them

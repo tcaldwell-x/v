@@ -6,12 +6,19 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    console.log("Session API called");
     const cookieStore = cookies();
     const sessionCookie = cookieStore.get('session');
+    
+    console.log("Session cookie found:", !!sessionCookie);
+    if (sessionCookie) {
+      console.log("Session cookie value length:", sessionCookie.value.length);
+    }
 
     if (!sessionCookie) {
+      console.log("No session cookie found, returning null session");
       return new NextResponse(
         JSON.stringify({ session: null }),
         { 
@@ -28,9 +35,11 @@ export async function GET() {
 
     try {
       const sessionData = JSON.parse(sessionCookie.value);
+      console.log("Session data parsed successfully");
       
       // Check if session is expired
       if (sessionData.expiresAt && sessionData.expiresAt < Date.now()) {
+        console.log("Session expired, deleting cookie");
         // Delete the expired session cookie
         const response = new NextResponse(
           JSON.stringify({ session: null }),
@@ -44,10 +53,14 @@ export async function GET() {
             }
           }
         );
+        
+        // Delete the cookie
         response.cookies.delete('session');
+        
         return response;
       }
 
+      console.log("Returning valid session data");
       return new NextResponse(
         JSON.stringify({ session: sessionData }),
         { 
@@ -75,7 +88,10 @@ export async function GET() {
           }
         }
       );
+      
+      // Delete the cookie
       response.cookies.delete('session');
+      
       return response;
     }
   } catch (error) {

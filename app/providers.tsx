@@ -93,9 +93,11 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
         
         // Process the session data
         if (data.session) {
+          console.log("Setting authenticated session:", data.session.user.username);
           setSession(data.session);
           setStatus("authenticated");
         } else {
+          console.log("No session data found, setting unauthenticated");
           setSession(null);
           setStatus("unauthenticated");
         }
@@ -106,15 +108,24 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    // Check session immediately
     checkSession();
+    
+    // Also set up a periodic check every 30 seconds
+    const intervalId = setInterval(checkSession, 30000);
+    
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
   }, []);
 
   const signIn = () => {
+    console.log("Initiating sign in...");
     window.location.href = '/api/auth/twitter?action=signin';
   };
 
   const signOut = async () => {
     try {
+      console.log("Initiating sign out...");
       const response = await fetch('/api/auth/twitter?action=signout', {
         method: 'POST',
         headers: {
@@ -125,9 +136,12 @@ export function TwitterAuthProvider({ children }: { children: ReactNode }) {
       });
       
       if (response.ok) {
+        console.log("Sign out successful");
         setSession(null);
         setStatus("unauthenticated");
         window.location.href = '/';
+      } else {
+        console.error("Sign out failed:", response.status);
       }
     } catch (error) {
       console.error("Error signing out:", error);
