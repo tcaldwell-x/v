@@ -21,13 +21,23 @@ export async function GET(request: NextRequest) {
   const action = searchParams.get('action');
   const error = searchParams.get('error');
   
+  console.log("Twitter auth route called with:", { action, error });
+  
   // Check for error 
   if (error) {
+    console.log("Error parameter found, redirecting to home with error");
     return NextResponse.redirect(new URL(`/?error=${error}`, request.url));
+  }
+  
+  // If no action is specified, default to signin
+  if (!action) {
+    console.log("No action specified, defaulting to signin");
+    return NextResponse.redirect(new URL('/api/auth/twitter?action=signin', request.url));
   }
   
   // Handle sign in
   if (action === 'signin') {
+    console.log("Handling signin action");
     // Check if environment variables are set
     const missingVars = [];
     if (!process.env.X_CLIENT_ID) missingVars.push('X_CLIENT_ID');
@@ -62,26 +72,26 @@ export async function GET(request: NextRequest) {
     );
     
     // Set cookies with secure options
-    response.cookies.set('twitter_oauth_state', generatedState, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: true, // Always use secure for Vercel deployments
       maxAge: 60 * 10, // 10 minutes
       path: '/',
-      sameSite: 'lax'
-    });
+      sameSite: 'lax' as const,
+      domain: new URL(request.url).hostname
+    };
     
-    response.cookies.set('twitter_code_verifier', codeVerifier, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 10, // 10 minutes
-      path: '/',
-      sameSite: 'lax'
-    });
+    console.log("Setting OAuth cookies with options:", cookieOptions);
     
+    response.cookies.set('twitter_oauth_state', generatedState, cookieOptions);
+    response.cookies.set('twitter_code_verifier', codeVerifier, cookieOptions);
+    
+    console.log("Redirecting to Twitter OAuth URL");
     return response;
   }
   
   // Handle any invalid requests
+  console.log("Invalid action specified:", action);
   return NextResponse.redirect(new URL('/', request.url));
 }
 
