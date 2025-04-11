@@ -123,12 +123,12 @@ export async function GET(request: NextRequest) {
     // Set the session cookie with proper domain and path
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: true, // Always use secure for Vercel deployments
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: '/',
       sameSite: 'lax' as const,
-      // Don't set domain for localhost, but set it for production
-      ...(process.env.NODE_ENV === 'production' ? { domain: hostname } : {})
+      // For Vercel deployments, we need to set the domain to the full hostname
+      domain: hostname
     };
     
     console.log("Setting session cookie with options:", cookieOptions);

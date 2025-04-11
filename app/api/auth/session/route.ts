@@ -11,12 +11,20 @@ export async function GET(request: NextRequest) {
     console.log("Session API called");
     console.log("Request headers:", Object.fromEntries(request.headers));
     
+    // Log the hostname from the request
+    const hostname = new URL(request.url).hostname;
+    console.log("Request hostname:", hostname);
+    
     const cookieStore = cookies();
     const sessionCookie = cookieStore.get('session');
     
     console.log("Session cookie found:", !!sessionCookie);
     if (sessionCookie) {
       console.log("Session cookie value length:", sessionCookie.value.length);
+    } else {
+      // Log all cookies to see what's available
+      const allCookies = cookieStore.getAll();
+      console.log("All available cookies:", allCookies.map(c => c.name));
     }
 
     if (!sessionCookie) {

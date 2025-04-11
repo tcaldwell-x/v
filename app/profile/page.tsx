@@ -9,11 +9,26 @@ export default function ProfilePage() {
   const { session, status, signOut } = useTwitterAuth()
   const router = useRouter()
   const [isClient, setIsClient] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<any>(null)
 
   // Set isClient to true once component mounts
   useEffect(() => {
     setIsClient(true)
-  }, [])
+    
+    // Add debugging information
+    const debug = {
+      status,
+      hasSession: !!session,
+      userInfo: session?.user ? {
+        id: session.user.id,
+        username: session.user.username,
+        name: session.user.name
+      } : null,
+      cookies: document.cookie ? document.cookie.split(';').map(c => c.trim()) : []
+    }
+    console.log("Profile page debug info:", debug)
+    setDebugInfo(debug)
+  }, [session, status])
 
   // Redirect unauthenticated users
   useEffect(() => {
@@ -99,6 +114,15 @@ export default function ProfilePage() {
                 </h5>
                 <p>You have successfully logged in with X OAuth 2.0.</p>
               </div>
+              
+              {debugInfo && (
+                <div className="mt-6 bg-gray-900/20 border border-gray-900/30 rounded-lg p-4">
+                  <h5 className="font-bold mb-2">Debug Information</h5>
+                  <pre className="text-xs overflow-auto max-h-40">
+                    {JSON.stringify(debugInfo, null, 2)}
+                  </pre>
+                </div>
+              )}
             </div>
           </div>
         </div>
