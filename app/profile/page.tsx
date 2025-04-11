@@ -6,15 +6,31 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 
 export default function ProfilePage() {
-  const { session, status, signOut } = useTwitterAuth()
+  const { session, status, signOut, refreshSession } = useTwitterAuth()
   const router = useRouter()
   const [isClient, setIsClient] = useState(false)
   const [debugInfo, setDebugInfo] = useState<any>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Set isClient to true once component mounts
   useEffect(() => {
     setIsClient(true)
     
+    // Force refresh the session when the profile page loads
+    const refreshSessionData = async () => {
+      if (!isRefreshing) {
+        setIsRefreshing(true)
+        console.log("Profile page mounted, refreshing session")
+        await refreshSession()
+        setIsRefreshing(false)
+      }
+    }
+    
+    refreshSessionData()
+  }, [refreshSession, isRefreshing])
+
+  // Update debug info when session or status changes
+  useEffect(() => {
     // Add debugging information
     const debug = {
       status,
@@ -32,14 +48,14 @@ export default function ProfilePage() {
 
   // Redirect unauthenticated users
   useEffect(() => {
-    if (isClient && status === "unauthenticated") {
+    if (isClient && status === "unauthenticated" && !isRefreshing) {
       console.log("User is unauthenticated, redirecting to home")
       router.push("/")
     }
-  }, [status, router, isClient])
+  }, [status, router, isClient, isRefreshing])
 
   // Show loading state
-  if (status === "loading" || !isClient) {
+  if (status === "loading" || !isClient || isRefreshing) {
     return (
       <div className="flex justify-center items-center h-48">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
@@ -121,6 +137,16 @@ export default function ProfilePage() {
                   <pre className="text-xs overflow-auto max-h-40">
                     {JSON.stringify(debugInfo, null, 2)}
                   </pre>
+                  <button 
+                    onClick={async () => {
+                      setIsRefreshing(true);
+                      await refreshSession();
+                      setIsRefreshing(false);
+                    }}
+                    className="btn-outline-dark text-sm mt-2"
+                  >
+                    Refresh Session
+                  </button>
                 </div>
               )}
             </div>
